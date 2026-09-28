@@ -1,0 +1,19 @@
+interno*
+
+# Archivos generados por el sistema operativo
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Archivos temporales y de bloqueo de editores/Office
+*~
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+*.orig
+~$*

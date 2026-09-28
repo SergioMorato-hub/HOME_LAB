@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de puesta en marcha y segmentación · Cisco CBS250-8T-E-2G</title>
+<style>
+:root{--bg:#f7f8fa;--panel:#fff;--text:#1b2230;--muted:#5b6577;--line:#dfe3ea;--brand:#0b3a6f;--accent:#1466c2;--soft:#eef3f9;--note:#eef3f9;--noteb:#1466c2;--warn:#fbf4e6;--warnb:#b5720a;--code:#111827;--codet:#e5edf8}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1218;--panel:#151b24;--text:#e6eaf1;--muted:#98a2b3;--line:#263041;--brand:#8bb8ee;--accent:#5fa2ee;--soft:#1a2432;--note:#16263a;--noteb:#5fa2ee;--warn:#2b2211;--warnb:#e3a53f;--code:#0a0d13;--codet:#dce8f8}}
+:root[data-theme="dark"]{--bg:#0e1218;--panel:#151b24;--text:#e6eaf1;--muted:#98a2b3;--line:#263041;--brand:#8bb8ee;--accent:#5fa2ee;--soft:#1a2432;--note:#16263a;--noteb:#5fa2ee;--warn:#2b2211;--warnb:#e3a53f;--code:#0a0d13;--codet:#dce8f8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.top{background:#0b2545;color:#fff;border-bottom:4px solid var(--accent)}
+.top .in{max-width:900px;margin:0 auto;padding:56px 22px 44px}
+.kicker{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#9ec3ef;margin-bottom:12px}
+.top h1{font-size:clamp(26px,4.6vw,38px);line-height:1.2;margin:0 0 14px;font-weight:650;letter-spacing:-.01em}
+.top p{margin:0;max-width:640px;color:#cfdcec;font-size:17px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:#274b78;margin-top:32px;border:1px solid #274b78;border-radius:6px;overflow:hidden}
+.meta div{background:#0f2f57;padding:12px 14px}
+.meta small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8fb2dc}
+.meta span{font-size:14.5px;font-weight:600}
+.layout{max-width:900px;margin:0 auto;padding:36px 22px 70px}
+h2{font-size:23px;margin:0 0 6px;color:var(--brand);font-weight:650}
+h3{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 8px;font-weight:650}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:28px 30px;margin-bottom:22px}
+.sec>p:first-of-type{margin-top:6px}
+.num{display:inline-block;min-width:34px;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700}
+.muted{color:var(--muted)}
+.toc{margin:0;padding:0;list-style:none;columns:2;column-gap:32px;font-size:15px}
+.toc li{padding:5px 0;border-bottom:1px solid var(--line);break-inside:avoid}
+.toc a{color:var(--text);text-decoration:none}
+.toc a:hover{color:var(--accent)}
+.toc .n{color:var(--accent);font-weight:700;margin-right:10px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin:12px 0}
+th,td{padding:10px 12px;text-align:left;border:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.wide{overflow-x:auto}
+ol.proc{list-style:none;counter-reset:s;margin:12px 0;padding:0}
+ol.proc>li{counter-increment:s;position:relative;padding:8px 0 8px 44px;border-bottom:1px solid var(--line)}
+ol.proc>li:last-child{border-bottom:0}
+ol.proc>li::before{content:counter(s);position:absolute;left:0;top:9px;width:28px;height:28px;border:1.5px solid var(--accent);color:var(--accent);border-radius:50%;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.callout{border-left:4px solid var(--noteb);background:var(--note);padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;font-size:15px}
+.callout.warn{border-color:var(--warnb);background:var(--warn)}
+.callout strong:first-child{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+pre.code{background:var(--code);color:var(--codet);font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border-radius:6px;padding:14px 16px;margin:14px 0;overflow-x:auto}
+code,.k{font:600 13.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--soft);padding:2px 6px;border-radius:4px}
+figure{margin:18px 0 6px}
+.shot{border:1.5px dashed var(--line);background:var(--soft);border-radius:6px;padding:34px 16px;text-align:center;color:var(--muted);font-size:14px}
+.shot img{max-width:100%;display:block;margin:0 auto;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+figcaption b{color:var(--text)}
+dl{margin:0}dt{font-weight:650;margin-top:14px}dd{margin:2px 0 0;color:var(--muted)}
+footer{max-width:900px;margin:0 auto;padding:0 22px 40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:20px}
+@media(max-width:620px){.toc{columns:1}.sec{padding:22px 18px}}
+@media print{.top{background:#fff;color:#000;border-color:#000}.top p,.kicker{color:#333}.sec{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="in">
+  <div class="kicker">Documentación técnica · Infraestructura de red</div>
+  <h1>Puesta en marcha y segmentación del switch Cisco CBS250-8T-E-2G</h1>
+  <p>Procedimiento paso a paso para el primer acceso, el refuerzo de la seguridad de gestión y la segmentación de la red mediante VLANs.</p>
+  <div class="meta">
+    <div><small>Equipo</small><span>Cisco CBS250-8T-E-2G</span></div>
+    <div><small>Nivel</small><span>Básico–intermedio</span></div>
+    <div><small>Duración</small><span>≈ 45 minutos</span></div>
+    <div><small>Alcance</small><span>Configuración inicial</span></div>
+  </div>
+</div></header>
+
+<main class="layout">
+
+<section class="sec">
+  <h2>Contenido</h2>
+  <ol class="toc">
+    <li><a href="#a"><span class="n">1</span>Objetivo y requisitos</a></li>
+    <li><a href="#b"><span class="n">2</span>Conexión física</a></li>
+    <li><a href="#c"><span class="n">3</span>Direccionamiento del equipo cliente</a></li>
+    <li><a href="#d"><span class="n">4</span>Acceso a la interfaz de gestión</a></li>
+    <li><a href="#e"><span class="n">5</span>Credenciales de administración</a></li>
+    <li><a href="#f"><span class="n">6</span>Diseño y creación de VLANs</a></li>
+    <li><a href="#g"><span class="n">7</span>Asignación de puertos</a></li>
+    <li><a href="#h"><span class="n">8</span>Guardado y copia de seguridad</a></li>
+    <li><a href="#i"><span class="n">9</span>Verificación</a></li>
+    <li><a href="#j"><span class="n">A</span>Glosario</a></li>
+  </ol>
+</section>
+
+<section class="sec" id="a">
+  <h2><span class="num">1</span>Objetivo y requisitos</h2>
+  <p class="muted">Este documento describe cómo dejar operativo el switch con una configuración segura y segmentada, apta para entornos de laboratorio o pequeña oficina.</p>
+  <h3>Requisitos</h3>
+  <div class="wide"><table>
+    <tr><th>Elemento</th><th>Detalle</th></tr>
+    <tr><td>Switch</td><td>Cisco CBS250-8T-E-2G con fuente de alimentación externa de 12 V DC / 1,5 A.</td></tr>
+    <tr><td>Cableado</td><td>Un cable Ethernet (UTP) de categoría 5e o superior.</td></tr>
+    <tr><td>Equipo de gestión</td><td>Ordenador con puerto Ethernet, o adaptador USB a Ethernet.</td></tr>
+    <tr><td>Navegador</td><td>Versión actual de Chrome, Firefox, Edge o Safari.</td></tr>
+  </table></div>
+  <div class="callout warn"><strong>Alimentación</strong>El equipo requiere el adaptador externo de 12 V. Un cable de corriente sin transformador no permite su funcionamiento.</div>
+</section>
+
+<section class="sec" id="b">
+  <h2><span class="num">2</span>Conexión física</h2>
+  <p class="muted">La configuración inicial se realiza con conexión directa entre el equipo de gestión y el switch.</p>
+  <ol class="proc">
+    <li>Conecte la fuente de alimentación al switch y a la red eléctrica. Espere aproximadamente un minuto hasta que finalice el arranque.</li>
+    <li>Conecte un extremo del cable Ethernet al puerto 1 del switch.</li>
+    <li>Conecte el extremo opuesto al puerto de red del equipo de gestión.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí una imagen de la conexión física</div><figcaption><b>Figura 1.</b> Conexión directa entre el equipo de gestión y el puerto 1.</figcaption></figure>
+</section>
+
+<section class="sec" id="c">
+  <h2><span class="num">3</span>Direccionamiento del equipo cliente</h2>
+  <p class="muted">De fábrica, y en ausencia de servidor DHCP, el switch responde en la dirección <code>192.168.1.254</code>. El equipo de gestión debe pertenecer a la misma subred.</p>
+  <ol class="proc">
+    <li>Abra la configuración de red del sistema operativo y seleccione el adaptador Ethernet.</li>
+    <li>Cambie el direccionamiento de automático a manual.</li>
+    <li>Introduzca los valores siguientes:</li>
+  </ol>
+  <pre class="code">Dirección IP        192.168.1.10
+Máscara de subred   255.255.255.0
+Puerta de enlace    (sin configurar)</pre>
+  <figure><div class="shot">Inserte aquí la captura de la configuración de red</div><figcaption><b>Figura 2.</b> Dirección IP estática en el equipo de gestión.</figcaption></figure>
+  <div class="callout"><strong>Nota</strong>Una vez finalizado el procedimiento, restablezca el adaptador a direccionamiento automático.</div>
+</section>
+
+<section class="sec" id="d">
+  <h2><span class="num">4</span>Acceso a la interfaz de gestión</h2>
+  <ol class="proc">
+    <li>Abra el navegador y acceda a <code>https://192.168.1.254</code>.</li>
+    <li>El navegador mostrará una advertencia de certificado, ya que el equipo utiliza uno autofirmado. Continúe con la conexión.</li>
+    <li>Inicie sesión con el usuario <code>cisco</code> y la contraseña <code>cisco</code>.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí la captura de la pantalla de inicio de sesión</div><figcaption><b>Figura 3.</b> Pantalla de autenticación del switch.</figcaption></figure>
+  <div class="callout warn"><strong>Sin respuesta</strong>Si la dirección no responde, el equipo puede conservar una configuración previa. Con el switch encendido, mantenga pulsado el botón RESET durante unos 10 segundos para restaurar los valores de fábrica.</div>
+</section>
+
+<section class="sec" id="e">
+  <h2><span class="num">5</span>Credenciales de administración</h2>
+  <p class="muted">Las credenciales por defecto son públicas. Sustituirlas es la primera medida de seguridad y debe realizarse antes de conectar el equipo a cualquier otra red.</p>
+  <ol class="proc">
+    <li>Atienda la solicitud de cambio de contraseña que muestra el equipo en el primer acceso.</li>
+    <li>Defina una contraseña de al menos 12 caracteres, única y no reutilizada en otros servicios.</li>
+    <li>Almacénela en un gestor de contraseñas.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí la captura del cambio de contraseña</div><figcaption><b>Figura 4.</b> Actualización de las credenciales por defecto.</figcaption></figure>
+</section>
+
+<section class="sec" id="f">
+  <h2><span class="num">6</span>Diseño y creación de VLANs</h2>
+  <p class="muted">Una VLAN (red de área local virtual) permite separar lógicamente los dispositivos conectados a un mismo switch, limitando la comunicación entre ellos y reduciendo la superficie de exposición.</p>
+  <h3>Plan de segmentación propuesto</h3>
+  <div class="wide"><table>
+    <tr><th>ID</th><th>Nombre</th><th>Función</th></tr>
+    <tr><td>10</td><td>Gestión</td><td>Administración del switch y de los equipos de red.</td></tr>
+    <tr><td>20</td><td>Usuarios</td><td>Equipos de uso diario.</td></tr>
+    <tr><td>30</td><td>IoT</td><td>Dispositivos de confianza limitada.</td></tr>
+    <tr><td>40</td><td>Laboratorio</td><td>Pruebas y prácticas aisladas del resto de la red.</td></tr>
+  </table></div>
+  <h3>Procedimiento</h3>
+  <ol class="proc">
+    <li>En el menú lateral, acceda a la sección de gestión de VLANs (<b>VLAN Management</b>).</li>
+    <li>Seleccione <b>Add</b> y defina el identificador y el nombre de cada VLAN.</li>
+    <li>Confirme los cambios con <b>Apply</b>.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí la captura de la lista de VLANs</div><figcaption><b>Figura 5.</b> VLANs definidas en el equipo.</figcaption></figure>
+  <div class="callout"><strong>Nota</strong>Los nombres de menú pueden variar ligeramente según la versión de firmware instalada.</div>
+</section>
+
+<section class="sec" id="g">
+  <h2><span class="num">7</span>Asignación de puertos</h2>
+  <p class="muted">Cada puerto se asigna a una VLAN. Los puertos que conectan con un único dispositivo se configuran en modo <em>access</em>; el puerto que enlaza con el router o firewall se configura en modo <em>trunk</em>.</p>
+  <div class="wide"><table>
+    <tr><th>Puerto</th><th>Destino</th><th>Modo</th><th>VLAN</th></tr>
+    <tr><td>1</td><td>Router / firewall</td><td>Trunk</td><td>10, 20, 30, 40</td></tr>
+    <tr><td>2</td><td>Servidor de gestión</td><td>Access</td><td>10</td></tr>
+    <tr><td>3–4</td><td>Equipos de usuario</td><td>Access</td><td>20</td></tr>
+    <tr><td>5</td><td>Dispositivos IoT</td><td>Access</td><td>30</td></tr>
+    <tr><td>6</td><td>Equipos de laboratorio</td><td>Access</td><td>40</td></tr>
+  </table></div>
+  <ol class="proc">
+    <li>Acceda a la asignación de VLAN por puerto (<b>Port to VLAN</b>).</li>
+    <li>Seleccione el puerto, defina su modo y la VLAN correspondiente.</li>
+    <li>Aplique los cambios.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí la captura de la asignación de puertos</div><figcaption><b>Figura 6.</b> Asignación de puertos a VLANs.</figcaption></figure>
+  <div class="callout warn"><strong>Precaución</strong>No modifique el puerto por el que está gestionando el equipo hasta el final del procedimiento; de lo contrario perderá el acceso y será necesario un restablecimiento.</div>
+</section>
+
+<section class="sec" id="h">
+  <h2><span class="num">8</span>Guardado y copia de seguridad</h2>
+  <p class="muted">Los cambios permanecen en la configuración en ejecución hasta que se guardan de forma explícita; un corte de suministro antes de guardarlos supondría su pérdida.</p>
+  <ol class="proc">
+    <li>Pulse el icono de guardado situado en la parte superior derecha y confirme la operación.</li>
+    <li>Descargue una copia de la configuración desde la sección de copia de seguridad (<b>Backup / Restore</b>).</li>
+    <li>Conserve el archivo en un almacenamiento externo al equipo.</li>
+  </ol>
+  <figure><div class="shot">Inserte aquí la captura de la configuración guardada</div><figcaption><b>Figura 7.</b> Confirmación de guardado de la configuración.</figcaption></figure>
+</section>
+
+<section class="sec" id="i">
+  <h2><span class="num">9</span>Verificación</h2>
+  <p class="muted">Compruebe el resultado antes de dar la configuración por finalizada.</p>
+  <div class="wide"><table>
+    <tr><th>Comprobación</th><th>Resultado esperado</th></tr>
+    <tr><td>Acceso con la nueva contraseña</td><td>El acceso con las credenciales por defecto deja de ser posible.</td></tr>
+    <tr><td>Listado de VLANs</td><td>Las cuatro VLANs aparecen con su nombre y sus puertos.</td></tr>
+    <tr><td>Conectividad por puerto</td><td>Cada dispositivo obtiene conectividad únicamente dentro de su VLAN.</td></tr>
+    <tr><td>Persistencia</td><td>Tras reiniciar el switch, la configuración se conserva.</td></tr>
+  </table></div>
+</section>
+
+<section class="sec" id="j">
+  <h2><span class="num">A</span>Glosario</h2>
+  <dl>
+    <dt>Switch</dt><dd>Dispositivo que interconecta equipos dentro de una misma red local.</dd>
+    <dt>Dirección IP</dt><dd>Identificador lógico de cada dispositivo en la red.</dd>
+    <dt>VLAN</dt><dd>Segmento lógico de red que aísla el tráfico de un grupo de dispositivos.</dd>
+    <dt>Puerto access</dt><dd>Puerto que da servicio a una única VLAN.</dd>
+    <dt>Puerto trunk</dt><dd>Puerto que transporta el tráfico de varias VLANs simultáneamente.</dd>
+  </dl>
+</section>
+
+</main>
+<footer>Documento de uso interno. Sustituya los marcadores de figura por sus capturas mediante <code>&lt;img src="capturas/nombre.png" alt="descripción"&gt;</code>.</footer>
+</body>
+</html>

@@ -1,3 +1,24 @@
+﻿# Secretos y credenciales
+*.key
+*.secret
+*.pem
+.env
+*.env
+
+# Backups y exportes sin sanear
+*.bak
+*.backup
+config/**/*.unsanitized*
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+
 interno*
 
 # Archivos generados por el sistema operativo
@@ -17,3 +38,6 @@ $RECYCLE.BIN/
 *.bak
 *.orig
 ~$*
+
+crear-homelab.ps1
+Antiguo

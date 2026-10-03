@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Lab · Sergio</title>
+  <meta name="description" content="Documentación interactiva del home lab: topología de red, VLANs y reglas de firewall.">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #131a26;
+      --surface-2: #1b2535;
+      --border: #263248;
+      --text: #e6edf7;
+      --muted: #8a98b0;
+      --accent: #5b9dff;
+      --accent-2: #2dd4a7;
+      --warn: #f5a524;
+      --danger: #f0616d;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    [data-theme="light"] {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef2f8;
+      --border: #d9e0ec;
+      --text: #111827;
+      --muted: #5b6678;
+      --accent: #2563eb;
+      --accent-2: #059669;
+      --warn: #b45309;
+      --danger: #dc2626;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background .3s, color .3s;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(900px 500px at 10% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+        radial-gradient(800px 500px at 110% 10%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent 60%);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    code, .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: .9em; }
+
+    .container { width: min(1120px, 92%); margin: 0 auto; }
+    section { padding: 72px 0; }
+    .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 700; }
+    h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.1; letter-spacing: -.02em; margin: .4rem 0 1rem; }
+    h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -.01em; margin-bottom: .5rem; }
+    .lead { color: var(--muted); max-width: 60ch; font-size: 1.05rem; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--bg) 75%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 1rem; }
+    .brand { font-weight: 700; color: var(--text); }
+    .brand span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.25rem; }
+    .nav-links a { color: var(--muted); font-size: .95rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .theme-btn {
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: .4rem .8rem; cursor: pointer; font-size: .9rem;
+    }
+    @media (max-width: 680px) { .nav-links { display: none; } }
+
+    /* HERO */
+    .hero { padding: 96px 0 56px; }
+    .hero-stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 18px; min-width: 150px;
+    }
+    .stat b { display: block; font-size: 1.4rem; }
+    .stat small { color: var(--muted); }
+    .btn {
+      display: inline-block; padding: .75rem 1.2rem; border-radius: 10px;
+      font-weight: 600; border: 1px solid var(--accent); transition: transform .15s, background .2s;
+    }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.ghost { color: var(--accent); }
+    .btn:hover { transform: translateY(-2px); }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+
+    /* CARDS */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+    }
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 32px; }
+    .fade { opacity: 0; transform: translateY(18px); transition: opacity .6s, transform .6s; }
+    .fade.in { opacity: 1; transform: none; }
+
+    /* TOPOLOGY */
+    .topo-wrap { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; margin-top: 32px; }
+    @media (max-width: 880px) { .topo-wrap { grid-template-columns: 1fr; } }
+    .topo-svg { width: 100%; height: auto; }
+    .node { cursor: pointer; transition: opacity .2s; }
+    .node rect { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.5; transition: stroke .2s, fill .2s; }
+    .node text { fill: var(--text); font-size: 14px; font-weight: 600; pointer-events: none; }
+    .node small-text { fill: var(--muted); font-size: 11px; }
+    .node:hover rect, .node.active rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 14%, var(--surface-2)); }
+    .link { stroke: var(--border); stroke-width: 2; fill: none; }
+    .link.flow { stroke: var(--accent-2); stroke-dasharray: 6 6; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -12; } }
+    .detail h3 { margin-bottom: .4rem; }
+    .detail .tag {
+      display: inline-block; font-size: .75rem; padding: 2px 10px; border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); margin-bottom: 10px;
+    }
+    .detail ul { padding-left: 1.1rem; color: var(--muted); }
+    .detail li { margin: 4px 0; }
+
+    /* VLANS */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 14px; }
+    .chip {
+      background: var(--surface-2); color: var(--muted); border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: .9rem; transition: all .2s;
+    }
+    .chip.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .vlan-list { display: grid; gap: 12px; }
+    .vlan {
+      display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; align-items: center;
+      background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--c);
+      border-radius: 12px; padding: 16px 18px; transition: transform .2s, opacity .3s;
+    }
+    .vlan:hover { transform: translateX(4px); }
+    .vlan.hidden { display: none; }
+    .vlan .id { font-weight: 800; font-size: 1.4rem; color: var(--c); }
+    .vlan .name { font-weight: 600; }
+    .vlan .desc { color: var(--muted); font-size: .92rem; }
+    .vlan .range { font-family: ui-monospace, monospace; font-size: .85rem; color: var(--muted); text-align: right; }
+    @media (max-width: 600px) { .vlan { grid-template-columns: 60px 1fr; } .vlan .range { grid-column: 2; text-align: left; } }
+
+    /* FIREWALL */
+    .rules { margin-top: 28px; display: grid; gap: 10px; }
+    .rule {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .rule button {
+      all: unset; box-sizing: border-box; cursor: pointer; width: 100%;
+      display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+    }
+    .rule button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .badge {
+      font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; min-width: 64px; text-align: center;
+    }
+    .allow { background: color-mix(in srgb, var(--accent-2) 20%, transparent); color: var(--accent-2); }
+    .block { background: color-mix(in srgb, var(--danger) 20%, transparent); color: var(--danger); }
+    .rule .title { flex: 1; font-weight: 600; }
+    .rule .arrow { color: var(--muted); transition: transform .3s; }
+    .rule.open .arrow { transform: rotate(180deg); }
+    .rule .body {
+      max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .35s;
+      padding: 0 18px; color: var(--muted);
+    }
+    .rule.open .body { max-height: 240px; padding: 0 18px 16px; }
+
+    /* TABS / SWITCH */
+    .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-top: 28px; }
+    .tab {
+      background: none; border: none; color: var(--muted); padding: 10px 16px; cursor: pointer;
+      font-size: .95rem; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    .panel { display: none; padding-top: 22px; }
+    .panel.on { display: block; }
+    pre {
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px; overflow-x: auto; font-size: .88rem; position: relative;
+    }
+    .copy {
+      position: absolute; top: 10px; right: 10px; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: .8rem;
+    }
+
+    /* ROADMAP */
+    .progress { margin-top: 24px; }
+    .bar { height: 10px; background: var(--surface-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+    .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 1.2s ease; border-radius: 999px; }
+    .steps { display: grid; gap: 12px; margin-top: 22px; }
+    .step { display: flex; gap: 14px; align-items: center; }
+    .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); flex: none; }
+    .step.done .dot { background: var(--accent-2); border-color: var(--accent-2); }
+    .step.todo .dot { border-style: dashed; }
+    .step.done span { color: var(--text); }
+    .step.todo span { color: var(--muted); }
+
+    footer { border-top: 1px solid var(--border); padding: 32px 0; color: var(--muted); font-size: .9rem; }
+    .footer-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="brand">home<span>/lab</span></div>
+    <div class="nav-links">
+      <a href="#topologia">Topología</a>
+      <a href="#vlans">VLANs</a>
+      <a href="#firewall">Firewall</a>
+      <a href="#config">Configuración</a>
+      <a href="#progreso">Progreso</a>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="Cambiar tema">☀︎ Claro</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="eyebrow">Infraestructura personal</div>
+    <h1>Mi home lab,<br>segmentado y documentado.</h1>
+    <p class="lead">Red doméstica gestionada con un Ubiquiti USG-PRO-4 y un Cisco CBS250. Aquí puedes explorar la topología, el plan de VLANs y las reglas de firewall.</p>
+    <div class="hero-stats">
+      <div class="stat"><b>2</b><small>Gateway + switch gestionados</small></div>
+      <div class="stat"><b>4</b><small>VLANs planificadas</small></div>
+      <div class="stat"><b>0</b><small>Servicios desplegados</small></div>
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="#topologia">Ver topología</a>
+      <a class="btn ghost" href="#config">Configuración</a>
+    </div>
+  </div>
+</header>
+
+<section id="topologia">
+  <div class="container">
+    <div class="eyebrow">Topología</div>
+    <h2>Flujo de tráfico</h2>
+    <p class="lead">Pulsa cualquier nodo para ver su papel en la red.</p>
+
+    <div class="topo-wrap">
+      <div class="card">
+        <svg class="topo-svg" viewBox="0 0 640 380" role="img" aria-label="Diagrama de topología">
+          <path class="link flow" d="M120 110 L230 110"/>
+          <path class="link flow" d="M350 110 L440 110"/>
+          <path class="link flow" d="M510 150 L510 200"/>
+          <path class="link" d="M510 270 L510 300"/>
+          <path class="link" d="M470 300 L300 300"/>
+
+          <g class="node" data-node="isp" tabindex="0">
+            <rect x="20" y="70" width="110" height="80" rx="12"/>
+            <text x="75" y="105" text-anchor="middle">ISP</text>
+            <text class="small-text" x="75" y="125" text-anchor="middle" fill="var(--muted)">Fibra / ADSL</text>
+          </g>
+
+          <g class="node" data-node="usg" tabindex="0">
+            <rect x="230" y="70" width="120" height="80" rx="12"/>
+            <text x="290" y="105" text-anchor="middle">USG-PRO-4</text>
+            <text x="290" y="125" text-anchor="middle" fill="var(--muted)" font-size="11">Firewall · Router</text>
+          </g>
+
+          <g class="node" data-node="sw" tabindex="0">
+            <rect x="440" y="70" width="140" height="80" rx="12"/>
+            <text x="510" y="105" text-anchor="middle">SW-HOME-LAB</text>
+            <text x="510" y="125" text-anchor="middle" fill="var(--muted)" font-size="11">Cisco CBS250</text>
+          </g>
+
+          <g class="node" data-node="pi" tabindex="0">
+            <rect x="440" y="200" width="140" height="70" rx="12"/>
+            <text x="510" y="232" text-anchor="middle">Raspberry Pi</text>
+            <text x="510" y="252" text-anchor="middle" fill="var(--muted)" font-size="11">VLAN 30</text>
+          </g>
+
+          <g class="node" data-node="srv" tabindex="0">
+            <rect x="180" y="280" width="290" height="70" rx="12"/>
+            <text x="325" y="312" text-anchor="middle">Servidor</text>
+            <text x="325" y="332" text-anchor="middle" fill="var(--muted)" font-size="11">VLAN 30</text>
+          </g>
+        </svg>
+      </div>
+
+      <aside class="card detail" id="detail" aria-live="polite">
+        <span class="tag" id="dTag">Internet</span>
+        <h3 id="dTitle">Proveedor de Internet</h3>
+        <p class="lead" id="dText" style="font-size:.95rem">Punto de entrada de la conexión. Llega al puerto WAN del USG.</p>
+        <ul id="dList"></ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="vlans">
+  <div class="container">
+    <div class="eyebrow">Segmentación</div>
+    <h2>Plan de VLANs</h2>
+    <p class="lead">Filtra por nivel de confianza para ver qué segmentos son internos y cuáles están aislados.</p>
+
+    <div class="chips" id="chips">
+      <button class="chip on" data-filter="all">Todas</button>
+      <button class="chip" data-filter="trusted">Confiables</button>
+      <button class="chip" data-filter="isolated">Aisladas</button>
+    </div>
+
+    <div class="vlan-list" id="vlanList">
+      <div class="vlan" data-level="trusted" style="--c: var(--warn)">
+        <div class="id">10</div>
+        <div><div class="name">Gestión</div><div class="desc">Switch, USG y controlador UniFi. Es la VLAN nativa del trunk.</div></div>
+        <div class="range">192.168.10.0/24</div>
+      </div>
+      <div class="vlan" data-level="trusted" style="--c: var(--accent)">
+        <div class="id">20</div>
+        <div><div class="name">Clientes</div><div class="desc">PCs y portátiles. Acceso a la VLAN de homelab según reglas.</div></div>
+        <div class="range">192.168.20.0/24</div>
+      </div>
+      <div class="vlan" data-level="trusted" style="--c: var(--accent-2)">
+        <div class="id">30</div>
+        <div><div class="name">Homelab</div><div class="desc">Raspberry Pi y servidor. Aquí vivirán los servicios.</div></div>
+        <div class="range">192.168.30.0/24</div>
+      </div>
+      <div class="vlan" data-level="isolated" style="--c: var(--danger)">
+        <div class="id">40</div>
+        <div><div class="name">IoT / Invitados</div><div class="desc">Dispositivos no confiables. Sin acceso a ninguna otra VLAN.</div></div>
+        <div class="range">192.168.40.0/24</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="firewall">
+  <div class="container">
+    <div class="eyebrow">Seguridad</div>
+    <h2>Reglas de firewall</h2>
+    <p class="lead">Pulsa una regla para ver su justificación.</p>
+
+    <div class="rules">
+      <div class="rule">
+        <button aria-expanded="false">
+          <span class="badge block">BLOCK</span>
+          <span class="title">IoT → cualquier VLAN interna</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="body">Aísla dispositivos no confiables. Si alguno se ve comprometido, no puede alcanzar el servidor ni los clientes.</div>
+      </div>
+      <div class="rule">
+        <button aria-expanded="false">
+          <span class="badge allow">ALLOW</span>
+          <span class="title">Clientes → Homelab (puertos concretos)</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="body">Solo los servicios que uses desde los clientes. Nada de "todo permitido" entre zonas.</div>
+      </div>
+      <div class="rule">
+        <button aria-expanded="false">
+          <span class="badge block">BLOCK</span>
+          <span class="title">WAN → LAN (entrada no solicitada)</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="body">Ninguna conexión entrante por defecto. El acceso remoto se hará con VPN WireGuard, no con port forwarding.</div>
+      </div>
+      <div class="rule">
+        <button aria-expanded="false">
+          <span class="badge allow">ALLOW</span>
+          <span class="title">Gestión → Administración de dispositivos</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="body">Solo la VLAN de gestión puede acceder a SSH y a la interfaz del USG y del switch.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="config">
+  <div class="container">
+    <div class="eyebrow">Configuración</div>
+    <h2>Switch y gateway</h2>
+    <p class="lead">Fragmentos de referencia. Los valores reales se sanean antes de publicarse.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-tab="sw" role="tab">Switch CBS250</button>
+      <button class="tab" data-tab="usg" role="tab">USG-PRO-4</button>
+    </div>
+
+    <div class="panel on" id="panel-sw">
+      <pre><button class="copy" data-copy="sw-code">Copiar</button><code id="sw-code">configure
+vlan 10,20,30,40
+interface gi1
+ switchport mode trunk
+ switchport trunk native vlan 10
+ switchport trunk allowed vlan add 10,20,30,40
+exit
+interface gi2
+ switchport mode access
+ switchport access vlan 30
+exit
+end
+write</code></pre>
+    </div>
+
+    <div class="panel" id="panel-usg">
+      <pre><button class="copy" data-copy="usg-code">Copiar</button><code id="usg-code">Controlador UniFi Network
+ → Redes: VLAN 10 (Gestión, nativa) · 20 (Clientes) · 30 (Homelab) · 40 (IoT)
+ → WAN: DHCP / PPPoE según operadora
+ → Firewall: IoT → RFC1918 = BLOCK
+             Clientes → Homelab = ALLOW (puertos concretos)
+             WAN → LAN = BLOCK
+ → Acceso remoto: WireGuard</code></pre>
+    </div>
+  </div>
+</section>
+
+<section id="progreso">
+  <div class="container">
+    <div class="eyebrow">Estado</div>
+    <h2>Progreso del proyecto</h2>
+    <div class="progress card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span>Infraestructura base</span><strong id="pct">0%</strong>
+      </div>
+      <div class="bar"><div id="barFill"></div></div>
+      <div class="steps">
+        <div class="step done"><div class="dot"></div><span>Hardware adquirido (USG-PRO-4, CBS250, Raspberry Pi, servidor)</span></div>
+        <div class="step done"><div class="dot"></div><span>Switch renombrado y SSH habilitado</span></div>
+        <div class="step todo"><div class="dot"></div><span>Plan de VLANs y direccionamiento documentado</span></div>
+        <div class="step todo"><div class="dot"></div><span>USG adoptado en el controlador UniFi</span></div>
+        <div class="step todo"><div class="dot"></div><span>Trunk y VLANs aplicados en el switch</span></div>
+        <div class="step todo"><div class="dot"></div><span>Primer servicio desplegado en VLAN 30</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-row">
+    <span>© Sergio · Home lab</span>
+    <span><a href="#topologia">Volver arriba ↑</a></span>
+  </div>
+</footer>
+
+<script>
+  // Tema claro / oscuro con persistencia
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  const saved = localStorage.getItem('theme');
+  if (saved) root.dataset.theme = saved;
+  const syncBtn = () => themeBtn.textContent = root.dataset.theme === 'dark' ? '☀︎ Claro' : '☾ Oscuro';
+  syncBtn();
+  themeBtn.addEventListener('click', () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', root.dataset.theme);
+    syncBtn();
+  });
+
+  // Topología interactiva
+  const nodes = {
+    isp: { tag: 'Internet', title: 'Proveedor de Internet', text: 'Punto de entrada de la conexión.', list: ['Llega al puerto WAN del USG', 'Si usas router del operador, va en modo bridge'] },
+    usg: { tag: 'Gateway', title: 'Ubiquiti USG-PRO-4', text: 'Enruta, filtra y decide qué puede hablar con qué.', list: ['Gestionado desde el controlador UniFi', 'Reglas de firewall entre VLANs', 'Servidor DHCP por VLAN'] },
+    sw: { tag: 'Switch', title: 'SW-HOME-LAB · Cisco CBS250', text: 'Reparte las VLANs a los puertos.', list: ['Gi1: trunk hacia el USG', 'Puertos access por VLAN', 'Gestión por SSH en VLAN 10'] },
+    pi: { tag: 'VLAN 30', title: 'Raspberry Pi', text: 'Nodo ligero para servicios y pruebas.', list: ['Conectada a un puerto access de VLAN 30', 'Aislada de IoT'] },
+    srv: { tag: 'VLAN 30', title: 'Servidor', text: 'Nodo principal donde se alojarán los servicios.', list: ['Acceso desde clientes solo en puertos permitidos', 'Sin exposición directa a Internet'] }
+  };
+  const detail = {
+    tag: document.getElementById('dTag'),
+    title: document.getElementById('dTitle'),
+    text: document.getElementById('dText'),
+    list: document.getElementById('dList')
+  };
+  function showNode(id) {
+    const n = nodes[id];
+    detail.tag.textContent = n.tag;
+    detail.title.textContent = n.title;
+    detail.text.textContent = n.text;
+    detail.list.innerHTML = n.list.map(i => `<li>${i}</li>`).join('');
+    document.querySelectorAll('.node').forEach(g => g.classList.toggle('active', g.dataset.node === id));
+  }
+  document.querySelectorAll('.node').forEach(g => {
+    g.addEventListener('click', () => showNode(g.dataset.node));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showNode(g.dataset.node); } });
+  });
+  showNode('usg');
+
+  // Filtro de VLANs
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === chip));
+      const f = chip.dataset.filter;
+      document.querySelectorAll('.vlan').forEach(v => {
+        v.classList.toggle('hidden', f !== 'all' && v.dataset.level !== f);
+      });
+    });
+  });
+
+  // Acordeón de firewall
+  document.querySelectorAll('.rule button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rule = btn.parentElement;
+      const open = rule.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+    });
+  });
+
+  // Pestañas de configuración
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + tab.dataset.tab));
+    });
+  });
+
+  // Copiar código
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = document.getElementById(btn.dataset.copy).innerText;
+      try { await navigator.clipboard.writeText(text); btn.textContent = 'Copiado ✓'; }
+      catch { btn.textContent = 'Error'; }
+      setTimeout(() => btn.textContent = 'Copiar', 1500);
+    });
+  });
+
+  // Animación de entrada y barra de progreso
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        if (e.target.id === 'progreso') {
+          const done = document.querySelectorAll('.step.done').length;
+          const total = document.querySelectorAll('.step').length;
+          const pct = Math.round(done / total * 100);
+          document.getElementById('barFill').style.width = pct + '%';
+          document.getElementById('pct').textContent = pct + '%';
+        }
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('section, .card, .stat').forEach(el => { el.classList.add('fade'); observer.observe(el); });
+</script>
+</body>
+</html>
